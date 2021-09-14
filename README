@@ -1,6 +1,6 @@
 # Para compilar
 
-`nvm package`
+`mvn package`
 
 # Para rodar
 
