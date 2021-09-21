@@ -1,6 +1,6 @@
 # Para compilar
 
-`mvn package`
+`mvn assembly:assembly -DdescriptorId=jar-with-dependencies`
 
 # Para rodar
 
