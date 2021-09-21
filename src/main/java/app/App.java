@@ -39,6 +39,7 @@ import org.cloudbus.cloudsim.vms.Vm;
 import org.cloudbus.cloudsim.vms.VmSimple;
 import org.cloudsimplus.builders.tables.CloudletsTableBuilder;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -74,11 +75,13 @@ public class App {
     private List<Cloudlet> cloudletList;
     private Datacenter datacenter0;
 
-    public static void main(String[] args) {
+    private static final String PATH_NODES = "resources/nodes.tsv";
+
+    public static void main(String[] args) throws IOException {
         new App();
     }
 
-    private App() {
+    private App() throws IOException {
         /*Enables just some level of log messages.
           Make sure to import org.cloudsimplus.util.Log;*/
         //Log.setLevel(ch.qos.logback.classic.Level.WARN);
@@ -102,14 +105,16 @@ public class App {
 
     /**
      * Creates a Datacenter and its Hosts.
+     * @throws IOException
      */
-    private Datacenter createDatacenter() {
-        final List<Host> hostList = new ArrayList<>(HOSTS);
+    private Datacenter createDatacenter() throws IOException {
+        /*final List<Host> hostList = new ArrayList<>(HOSTS);
         for(int i = 0; i < HOSTS; i++) {
             Host host = createHost();
             hostList.add(host);
-        }
-
+        }*/
+        ArrayList<Host> hostList = new Nodes(PATH_NODES).getHosts(HOST_BW, HOST_STORAGE);
+        System.out.println(hostList.size());
         //Uses a VmAllocationPolicySimple by default to allocate VMs
         return new DatacenterSimple(simulation, hostList);
     }
