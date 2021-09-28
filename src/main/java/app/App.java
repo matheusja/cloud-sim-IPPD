@@ -87,7 +87,8 @@ public class App {
         //Log.setLevel(ch.qos.logback.classic.Level.WARN);
 
         simulation = new CloudSim();
-        datacenter0 = createDatacenter();
+        ArrayList<Datacenter> datacenterList = new Nodes(PATH_NODES)
+                .getDatacenters(simulation, HOST_BW, HOST_STORAGE, HOST_MIPS);
 
         //Creates a broker that is a software acting on behalf a cloud customer to manage his/her VMs and Cloudlets
         broker0 = new DatacenterBrokerSimple(simulation);
@@ -102,38 +103,7 @@ public class App {
         final List<Cloudlet> finishedCloudlets = broker0.getCloudletFinishedList();
         new CloudletsTableBuilder(finishedCloudlets).build();
     }
-
-    /**
-     * Creates a Datacenter and its Hosts.
-     * @throws IOException
-     */
-    private Datacenter createDatacenter() throws IOException {
-        /*final List<Host> hostList = new ArrayList<>(HOSTS);
-        for(int i = 0; i < HOSTS; i++) {
-            Host host = createHost();
-            hostList.add(host);
-        }*/
-        ArrayList<Host> hostList = new Nodes(PATH_NODES).getHosts(HOST_BW, HOST_STORAGE);
-        System.out.println(hostList.size());
-        //Uses a VmAllocationPolicySimple by default to allocate VMs
-        return new DatacenterSimple(simulation, hostList);
-    }
-
-    private Host createHost() {
-        final List<Pe> peList = new ArrayList<>(HOST_PES);
-        //List of Host's CPUs (Processing Elements, PEs)
-        for (int i = 0; i < HOST_PES; i++) {
-            //Uses a PeProvisionerSimple by default to provision PEs for VMs
-            peList.add(new PeSimple(HOST_MIPS));
-        }
-
-        /*
-        Uses ResourceProvisionerSimple by default for RAM and BW provisioning
-        and VmSchedulerSpaceShared for VM scheduling.
-        */
-        return new HostSimple(HOST_RAM, HOST_BW, HOST_STORAGE, peList);
-    }
-
+    
     /**
      * Creates a list of VMs.
      */

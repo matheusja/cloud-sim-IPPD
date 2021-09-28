@@ -4,8 +4,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
+import org.cloudbus.cloudsim.core.Simulation;
 
 import org.cloudbus.cloudsim.datacenters.Datacenter;
+import org.cloudbus.cloudsim.datacenters.DatacenterSimple;
 import org.cloudbus.cloudsim.hosts.Host;
 import org.cloudbus.cloudsim.hosts.HostSimple;
 import org.cloudbus.cloudsim.resources.Pe;
@@ -32,22 +34,26 @@ public class Nodes {
         String[] elems = s.nextLine().split("\t");
         nomes.add(elems[0]);
         niveis.add(Integer.parseInt(elems[1]));
-        processingElements.add(Integer.parseInt(elems[2]));
-        processingMods.add(Integer.parseInt(elems[3]));
+        processingElements.add(Integer.parseInt(elems[3]));
+        processingMods.add(Integer.parseInt(elems[2]));
         RAMs.add(Integer.parseInt(elems[4]) * 1024);
       }
     } finally {
       s.close();
     }
   }
-  public ArrayList<Host> getHosts(long hostBw, long hostStorage) {
-    ArrayList<Host> result = new ArrayList<>();
+  public ArrayList<Datacenter> getDatacenters(Simulation s, long hostBw, long hostStorage, long pe_mips) {
+    ArrayList<Datacenter> result = new ArrayList<>();
     for (int i = 0; i < nomes.size(); i++) {
-      ArrayList<Pe> pes = new ArrayList<Pe>();
-      for (int j = 0; j < processingMods.get(i); j++){
-        pes.add(new PeSimple(processingElements.get(i) * 10_000));
+      ArrayList<Host> hosts = new ArrayList<>();
+      for (int j = 0; j < processingMods.get(i); j++) {
+        ArrayList<Pe> pes = new ArrayList<>();
+        for (int k = 0; k < processingElements.get(i) / processingMods.get(i); k++) {
+            pes.add(new PeSimple(pe_mips));
+        }
+        hosts.add(new HostSimple(RAMs.get(i), hostBw, hostStorage, pes));
       }
-      result.add(new HostSimple(RAMs.get(i), hostBw, hostStorage, pes));
+      result.add(new DatacenterSimple(s, hosts));
     }
     return result;
   }
