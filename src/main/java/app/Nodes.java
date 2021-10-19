@@ -53,7 +53,9 @@ public class Nodes {
         }
         hosts.add(new HostSimple(RAMs.get(i), hostBw, hostStorage, pes));
       }
-      result.add(new DatacenterSimple(s, hosts));
+      Datacenter datacenter = new DatacenterSimple(s, hosts);
+      datacenter.setName(nomes.get(i));
+      result.add(datacenter);
     }
     return result;
   }
