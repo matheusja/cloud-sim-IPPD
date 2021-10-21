@@ -26,15 +26,9 @@ package app;
 import org.cloudbus.cloudsim.brokers.DatacenterBroker;
 import org.cloudbus.cloudsim.brokers.DatacenterBrokerSimple;
 import org.cloudbus.cloudsim.cloudlets.Cloudlet;
-import org.cloudbus.cloudsim.cloudlets.CloudletSimple;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.datacenters.Datacenter;
-import org.cloudbus.cloudsim.datacenters.DatacenterSimple;
-import org.cloudbus.cloudsim.hosts.Host;
-import org.cloudbus.cloudsim.hosts.HostSimple;
 import org.cloudbus.cloudsim.resources.Pe;
-import org.cloudbus.cloudsim.resources.PeSimple;
-import org.cloudbus.cloudsim.utilizationmodels.UtilizationModelDynamic;
 import org.cloudbus.cloudsim.vms.Vm;
 import org.cloudbus.cloudsim.vms.VmSimple;
 import org.cloudsimplus.builders.tables.CloudletsTableBuilder;
@@ -57,24 +51,16 @@ import java.util.List;
  * @since CloudSim Plus 1.0
  */
 public class App {
-    private static final int HOSTS = 1;
-    private static final int HOST_PES = 8;
     private static final int HOST_MIPS = 1000;
-    private static final int HOST_RAM = 2048; // in Megabytes
     private static final long HOST_BW = 10_000; // in Megabits/s
     private static final long HOST_STORAGE = 1_000_000; // in Megabytes
 
     private static final int VMS = 2;
     private static final int VM_PES = 4;
 
-    private static final int CLOUDLETS = 4;
-    private static final int CLOUDLET_PES = 1;
-    private static final int CLOUDLET_LENGTH = 10_000;
-
     private final CloudSim simulation;
     private DatacenterBroker broker0;
     private List<Vm> vmList;
-    private Datacenter datacenter0;
 
     private static final String PATH_NODES = "resources/nodes.tsv";
 
@@ -97,11 +83,12 @@ public class App {
         // manage his/her VMs and Cloudlets
         broker0 = new DatacenterBrokerSimple(simulation);
 
-        vmList = createVms();
         for (Datacenter datacenter : datacenterList) {
             List<Cloudlet> cloudletList = JobScanner.scanJobsFile("resources/" + datacenter.getName() + "_jobs.tsv");
             broker0.submitCloudletList(cloudletList);
         }
+
+        vmList = createVms(datacenterList);
         broker0.submitVmList(vmList);
 
         simulation.start();
@@ -113,34 +100,20 @@ public class App {
     /**
      * Creates a list of VMs.
      */
-    private List<Vm> createVms() {
+    private List<Vm> createVms(List<Datacenter> datacenterList) {
         final List<Vm> list = new ArrayList<>(VMS);
-        for (int i = 0; i < VMS; i++) {
-            // Uses a CloudletSchedulerTimeShared by default to schedule Cloudlets
-            final Vm vm = new VmSimple(HOST_MIPS, VM_PES);
-            vm.setRam(512).setBw(1000).setSize(10_000);
-            list.add(vm);
+        for (Datacenter datacenter : datacenterList) {
+            for (int i = 0; i < datacenter.getHostList().size(); i++) {
+                // Uses a CloudletSchedulerTimeShared by default to schedule Cloudlets
+                final Vm vm = new VmSimple(HOST_MIPS, VM_PES);
+                vm.setRam(512).setBw(1000).setSize(10_000);
+                list.add(vm);
+            }
         }
-
         return list;
     }
 
     /**
      * Creates a list of Cloudlets.
      */
-    private List<Cloudlet> createCloudlets() {
-        final List<Cloudlet> list = new ArrayList<>(CLOUDLETS);
-
-        // UtilizationModel defining the Cloudlets use only 50% of any resource all the
-        // time
-        final UtilizationModelDynamic utilizationModel = new UtilizationModelDynamic(0.5);
-
-        for (int i = 0; i < CLOUDLETS; i++) {
-            final Cloudlet cloudlet = new CloudletSimple(CLOUDLET_LENGTH, CLOUDLET_PES, utilizationModel);
-            cloudlet.setSizes(1024);
-            list.add(cloudlet);
-        }
-
-        return list;
-    }
 }
