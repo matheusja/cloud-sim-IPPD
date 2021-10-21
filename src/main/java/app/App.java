@@ -65,10 +65,10 @@ public class App {
     private static final String PATH_NODES = "resources/nodes.tsv";
 
     public static void main(String[] args) throws IOException {
-        new App();
+        new App((args.length == 0) ? "small" : args[0]);
     }
 
-    private App() throws IOException {
+    private App(String sizeClassName) throws IOException {
         /*
          * Enables just some level of log messages. Make sure to import
          * org.cloudsimplus.util.Log;
@@ -84,7 +84,7 @@ public class App {
         broker0 = new DatacenterBrokerSimple(simulation);
 
         for (Datacenter datacenter : datacenterList) {
-            List<Cloudlet> cloudletList = JobScanner.scanJobsFile("resources/" + datacenter.getName() + "_jobs.tsv");
+            List<Cloudlet> cloudletList = JobScanner.scanJobsFile(String.format("resources/%s_%s_jobs.tsv", datacenter.getName(), sizeClassName));
             broker0.submitCloudletList(cloudletList);
         }
 
