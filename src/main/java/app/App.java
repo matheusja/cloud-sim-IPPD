@@ -28,6 +28,7 @@ import org.cloudbus.cloudsim.brokers.DatacenterBrokerSimple;
 import org.cloudbus.cloudsim.cloudlets.Cloudlet;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.datacenters.Datacenter;
+import org.cloudbus.cloudsim.hosts.Host;
 import org.cloudbus.cloudsim.resources.Pe;
 import org.cloudbus.cloudsim.vms.Vm;
 import org.cloudbus.cloudsim.vms.VmSimple;
@@ -56,7 +57,7 @@ public class App {
     private static final long HOST_STORAGE = 1_000_000; // in Megabytes
 
     private static final int VMS = 2;
-    private static final int VM_PES = 4;
+    private static final int VM_PES = 16;
 
     private final CloudSim simulation;
     private DatacenterBroker broker0;
@@ -84,7 +85,8 @@ public class App {
         broker0 = new DatacenterBrokerSimple(simulation);
 
         for (Datacenter datacenter : datacenterList) {
-            List<Cloudlet> cloudletList = JobScanner.scanJobsFile(String.format("resources/%s_%s_jobs.tsv", datacenter.getName(), sizeClassName));
+            List<Cloudlet> cloudletList = JobScanner
+                    .scanJobsFile(String.format("resources/%s_%s_jobs.tsv", datacenter.getName(), sizeClassName));
             broker0.submitCloudletList(cloudletList);
         }
 
@@ -103,11 +105,13 @@ public class App {
     private List<Vm> createVms(List<Datacenter> datacenterList) {
         final List<Vm> list = new ArrayList<>(VMS);
         for (Datacenter datacenter : datacenterList) {
-            for (int i = 0; i < datacenter.getHostList().size(); i++) {
-                // Uses a CloudletSchedulerTimeShared by default to schedule Cloudlets
-                final Vm vm = new VmSimple(HOST_MIPS, VM_PES);
-                vm.setRam(512).setBw(1000).setSize(10_000);
-                list.add(vm);
+            for (Host host : datacenter.getHostList()) {
+                for (int i = 0; i < host.getPeList().size() / VM_PES; i++) {
+                    // Uses a CloudletSchedulerTimeShared by default to schedule Cloudlets
+                    final Vm vm = new VmSimple(HOST_MIPS, VM_PES);
+                    vm.setRam(512).setBw(1000).setSize(10_000);
+                    list.add(vm);
+                }
             }
         }
         return list;
