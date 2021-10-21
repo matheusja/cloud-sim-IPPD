@@ -51,7 +51,7 @@ public class Nodes {
         for (int k = 0; k < processingElements.get(i) / processingMods.get(i); k++) {
             pes.add(new PeSimple(pe_mips));
         }
-        hosts.add(new HostSimple(RAMs.get(i), hostBw, hostStorage, pes));
+        hosts.add(new HostSimple(RAMs.get(i)/processingMods.get(i), hostBw, hostStorage, pes));
       }
       Datacenter datacenter = new DatacenterSimple(s, hosts);
       datacenter.setName(nomes.get(i));
