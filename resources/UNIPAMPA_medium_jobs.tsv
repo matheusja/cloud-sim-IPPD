@@ -1,4 +1,5 @@
 atraso	numero_tarefas	custo_computacional
+2	250	100
 3	134	5435
 1	50	60
 4	100	65
@@ -6,4 +7,3 @@ atraso	numero_tarefas	custo_computacional
 3	10	200
 6	20	234
 2	30	60
-3	10	150
