@@ -5,3 +5,5 @@
 # Para rodar
 
 `java -cp target/cloud-sim-trabalho-1.0-SNAPSHOT-jar-with-dependencies.jar app.App`
+
+Pode haver um argumento opcional: "small", "medium" ou "big", por padrão, é small, define quais arquivos vão ser utilizados(estão em resources/jobs/<NOME DA INSTITUIÇÃO>_<nome da classe de tamanho>.tsv)
