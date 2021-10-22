@@ -86,7 +86,7 @@ public class App {
 
         for (Datacenter datacenter : datacenterList) {
             List<Cloudlet> cloudletList = JobScanner
-                    .scanJobsFile(String.format("resources/%s_%s_jobs.tsv", datacenter.getName(), sizeClassName));
+                    .scanJobsFile(String.format("resources/jobs/%s_%s.tsv", datacenter.getName(), sizeClassName));
             broker0.submitCloudletList(cloudletList);
         }
 
