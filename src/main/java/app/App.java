@@ -32,11 +32,14 @@ import org.cloudbus.cloudsim.hosts.Host;
 import org.cloudbus.cloudsim.resources.Pe;
 import org.cloudbus.cloudsim.vms.Vm;
 import org.cloudbus.cloudsim.vms.VmSimple;
+import org.cloudbus.cloudsim.schedulers.cloudlet.CloudletScheduler;
 import org.cloudsimplus.builders.tables.CloudletsTableBuilder;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import app.MyCloudletScheduler;
 
 /**
  * A minimal but organized, structured and re-usable CloudSim Plus example which
@@ -109,7 +112,8 @@ public class App {
                 for (int i = 0; i < host.getPeList().size() / VM_PES; i++) {
                     // Uses a CloudletSchedulerTimeShared by default to schedule Cloudlets
                     final Vm vm = new VmSimple(HOST_MIPS, VM_PES);
-                    vm.setRam(512).setBw(1000).setSize(10_000);
+                    CloudletScheduler cloudletScheduler = new MyCloudletScheduler(vm);
+                    vm.setRam(512).setBw(1000).setSize(10_000).setCloudletScheduler(cloudletScheduler);
                     list.add(vm);
                 }
             }
