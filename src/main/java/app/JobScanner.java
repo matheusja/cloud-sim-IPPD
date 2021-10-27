@@ -9,6 +9,8 @@ import java.util.Scanner;
 import org.cloudbus.cloudsim.cloudlets.Cloudlet;
 import org.cloudbus.cloudsim.cloudlets.CloudletSimple;
 
+import org.cloudbus.cloudsim.utilizationmodels.UtilizationModelDynamic;
+
 public class JobScanner {
     public static List<Cloudlet> scanJobsFile(String path) throws FileNotFoundException {
         Scanner scanner = new Scanner(new FileInputStream(path));
@@ -27,6 +29,7 @@ public class JobScanner {
                 for (int i = 0; i < numeroTarefas; i++) {
                     Cloudlet cloudlet = new CloudletSimple(custoComputacional, 1);
                     cloudlet.setSubmissionDelay(atrasoAcumulado);
+                    cloudlet.setUtilizationModelCpu(new UtilizationModelDynamic(0.1));
                     jobList.add(cloudlet);
                 }
             }

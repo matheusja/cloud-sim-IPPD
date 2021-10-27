@@ -69,12 +69,14 @@ public class App {
     public static void main(String[] args) throws IOException {
         SchedulerOption use_refined_scheculer;
         if (args.length >= 2) {
-            if (args[1] == "crude") {
+            if (args[1].equals("crude")) {
                 use_refined_scheculer = SchedulerOption.MyCrudeScheduler;
-            } else if (args[1] == "refined") {
+            } else if (args[1].equals("refined")) {
                 use_refined_scheculer = SchedulerOption.MyScheduler;
-            } else {
+            } else if (args[1].equals("default")) {
                 use_refined_scheculer = SchedulerOption.SchedulerDefault;
+            } else {
+                throw new Exception(String.format("Error: \"%s\" not a valid scheduling option", args[1]));
             }
         } else {
             use_refined_scheculer = SchedulerOption.SchedulerDefault;
