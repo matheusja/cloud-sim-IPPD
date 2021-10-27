@@ -15,8 +15,8 @@ class MyCloudletScheduler extends CloudletSchedulerAbstract {
 
     @Override
     public double cloudletResume(Cloudlet cloudlet) {
-        if ((1 - managed.getCpuPercentUtilization()) > cloudlet.getUtilizationOfCpu()) {
-          return cloudlet.getLength() / managed.getMips();
+        if ((1 - managed.getCpuPercentUtilization()) >= cloudlet.getUtilizationOfCpu()) {
+            return cloudlet.getLength() / managed.getMips();
         }
         return 0;
     }

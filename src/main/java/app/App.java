@@ -32,14 +32,12 @@ import org.cloudbus.cloudsim.hosts.Host;
 import org.cloudbus.cloudsim.resources.Pe;
 import org.cloudbus.cloudsim.vms.Vm;
 import org.cloudbus.cloudsim.vms.VmSimple;
-import org.cloudbus.cloudsim.schedulers.cloudlet.CloudletScheduler;
 import org.cloudsimplus.builders.tables.CloudletsTableBuilder;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import app.MyCloudletScheduler;
 
 /**
  * A minimal but organized, structured and re-usable CloudSim Plus example which
@@ -55,7 +53,7 @@ import app.MyCloudletScheduler;
  * @since CloudSim Plus 1.0
  */
 public class App {
-    private static final int HOST_MIPS = 1000;
+    private static final int HOST_PE_MIPS = 1000;
     private static final long HOST_BW = 10_000; // in Megabits/s
     private static final long HOST_STORAGE = 1_000_000; // in Megabytes
 
@@ -69,10 +67,23 @@ public class App {
     private static final String PATH_NODES = "resources/nodes.tsv";
 
     public static void main(String[] args) throws IOException {
-        new App((args.length == 0) ? "small" : args[0]);
+        SchedulerOption use_refined_scheculer;
+        if (args.length >= 2) {
+            if (args[1] == "crude") {
+                use_refined_scheculer = SchedulerOption.MyCrudeScheduler;
+            } else if (args[1] == "refined") {
+                use_refined_scheculer = SchedulerOption.MyScheduler;
+            } else {
+                use_refined_scheculer = SchedulerOption.SchedulerDefault;
+            }
+        } else {
+            use_refined_scheculer = SchedulerOption.SchedulerDefault;
+        }
+
+        new App((args.length >= 1) ? args[0] : "small", use_refined_scheculer);
     }
 
-    private App(String sizeClassName) throws IOException {
+    private App(String sizeClassName, SchedulerOption so) throws IOException {
         /*
          * Enables just some level of log messages. Make sure to import
          * org.cloudsimplus.util.Log;
@@ -81,7 +92,7 @@ public class App {
 
         simulation = new CloudSim();
         ArrayList<Datacenter> datacenterList = new Nodes(PATH_NODES).getDatacenters(simulation, HOST_BW, HOST_STORAGE,
-                HOST_MIPS);
+                HOST_PE_MIPS);
 
         // Creates a broker that is a software acting on behalf a cloud customer to
         // manage his/her VMs and Cloudlets
@@ -93,7 +104,7 @@ public class App {
             broker0.submitCloudletList(cloudletList);
         }
 
-        vmList = createVms(datacenterList);
+        vmList = createVms(datacenterList, so);
         broker0.submitVmList(vmList);
 
         simulation.start();
@@ -105,15 +116,24 @@ public class App {
     /**
      * Creates a list of VMs.
      */
-    private List<Vm> createVms(List<Datacenter> datacenterList) {
+    private List<Vm> createVms(List<Datacenter> datacenterList, SchedulerOption so) {
         final List<Vm> list = new ArrayList<>(VMS);
         for (Datacenter datacenter : datacenterList) {
             for (Host host : datacenter.getHostList()) {
                 for (int i = 0; i < host.getPeList().size() / VM_PES; i++) {
                     // Uses a CloudletSchedulerTimeShared by default to schedule Cloudlets
-                    final Vm vm = new VmSimple(HOST_MIPS, VM_PES);
-                    CloudletScheduler cloudletScheduler = new MyCloudletScheduler(vm);
-                    vm.setRam(512).setBw(1000).setSize(10_000).setCloudletScheduler(cloudletScheduler);
+                    final Vm vm = new VmSimple(HOST_PE_MIPS, VM_PES);
+                    vm.setRam(512).setBw(1000).setSize(10_000);
+                    switch (so) {
+                        case MyCrudeScheduler:
+                            vm.setCloudletScheduler(new MyCrudeCloudletScheduler(vm));
+                            break;
+                        case MyScheduler:
+                            vm.setCloudletScheduler(new MyCloudletScheduler(vm));
+                            break;
+                        default:
+                            break;
+                    }
                     list.add(vm);
                 }
             }
@@ -124,4 +144,8 @@ public class App {
     /**
      * Creates a list of Cloudlets.
      */
+}
+
+enum SchedulerOption {
+    SchedulerDefault, MyCrudeScheduler, MyScheduler
 }
