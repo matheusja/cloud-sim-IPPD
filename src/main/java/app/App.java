@@ -33,6 +33,7 @@ import org.cloudbus.cloudsim.resources.Pe;
 import org.cloudbus.cloudsim.vms.Vm;
 import org.cloudbus.cloudsim.vms.VmSimple;
 import org.cloudsimplus.builders.tables.CloudletsTableBuilder;
+import org.cloudbus.cloudsim.schedulers.cloudlet.CloudletSchedulerSpaceShared;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -66,7 +67,7 @@ public class App {
 
     private static final String PATH_NODES = "resources/nodes.tsv";
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, Exception {
         SchedulerOption use_refined_scheculer;
         if (args.length >= 2) {
             if (args[1].equals("crude")) {
@@ -75,6 +76,8 @@ public class App {
                 use_refined_scheculer = SchedulerOption.MyScheduler;
             } else if (args[1].equals("default")) {
                 use_refined_scheculer = SchedulerOption.SchedulerDefault;
+            } else if (args[1].equals("space_shared")) {
+                use_refined_scheculer = SchedulerOption.SpaceShared;
             } else {
                 throw new Exception(String.format("Error: \"%s\" not a valid scheduling option", args[1]));
             }
@@ -133,6 +136,8 @@ public class App {
                         case MyScheduler:
                             vm.setCloudletScheduler(new MyCloudletScheduler(vm));
                             break;
+                        case SpaceShared:
+                            vm.setCloudletScheduler(new CloudletSchedulerSpaceShared());
                         default:
                             break;
                     }
@@ -149,5 +154,5 @@ public class App {
 }
 
 enum SchedulerOption {
-    SchedulerDefault, MyCrudeScheduler, MyScheduler
+    SchedulerDefault, MyCrudeScheduler, MyScheduler, SpaceShared
 }
